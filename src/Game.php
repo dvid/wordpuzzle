@@ -122,6 +122,7 @@ class Game
         $footerHeight = (!$this->header && $this->footer) ?: 20;
         $xoffset = $fontSize/3;
         $yoffset = $fontSize*1.2 + $headerHeight/2 + $footerHeight/2;
+        $yoffset = (strlen(preg_replace("/[^[:alnum:][:space:]]/u", 'f', $words)) <= 1 && !ctype_alnum($words)) ? $fontSize/1.2 + $headerHeight/2 + $footerHeight/2 : $fontSize*1.2 + $headerHeight/2 + $footerHeight/2;
 
         // Wrap long text
         $words = wordwrap($words, 35, PHP_EOL);
@@ -130,6 +131,7 @@ class Game
         $coordinates = $this->calculateTextBox($fontSize, 0, $font, $words);
         $width = $coordinates['width'] + 30;
         $height = $coordinates['height'] + 30 + $headerHeight + $footerHeight;
+        $height = (strlen(preg_replace("/[^[:alnum:][:space:]]/u", 'f', $words)) <= 1 && !ctype_alnum($words)) ? $coordinates['height']+30 : $height;
 
         // Create background image
         $im = imagecreatetruecolor($width, $height);
