@@ -1,0 +1,17 @@
+{
+    "name": "dvid/wordpuzzle",
+    "description": "Chat text game as gif",
+    "type": "project",
+    "authors": [
+        {
+            "name": "dvid",
+            "role": "developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "Lib\\": "lib/"
+        }
+    }
+}
