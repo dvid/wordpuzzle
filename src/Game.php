@@ -17,9 +17,21 @@ class Game
     private $header;
     private $footer;
     private $fontSize;
+    private $logo;
+    private $logoPath = __DIR__ . '/../assets/energi.png';
+    private $logoResizedPath;
 
-    public function __construct(?string $words, ?bool $lock, ?string $answers, string $session, bool $header = true, bool $footer = true, int $fontSize = 45)
-    {
+    public function __construct(
+        ?string $words,
+        ?bool $lock,
+        ?string $answers,
+        string $session,
+        bool $header = false,
+        bool $footer = false,
+        int $fontSize = 45,
+        bool $logo = false
+    ) {
+        $this->logo = $logo;
         $this->header = $header;
         $this->footer = $footer;
         $this->session = $session;
@@ -140,12 +152,13 @@ class Game
         $green = imagecolorallocate($im, 51, 102, 102);
         imagefilledrectangle($im, 0, 0, $width, $height, $white);
 
-        // Write it
+        // Write words
         imagettftext($im, $fontSize, 0, $xoffset, $yoffset, $green, $font, $words);
 
-        // Set the cordinates so its next to the first text
+        // Set the coordinates
+        $yPadding = ($this->header && $this->footer) ? 20 : 0;
         $x = $coordinates['width'] /2 - 60;
-        $y = $coordinates['height']+40;
+        $y = $coordinates['height']+40+$yPadding;
 
         // Header
         if ($this->header) imagettftext($im, 10, 0, $x, 15, $black, $font, ' Congratulations ');
@@ -153,20 +166,82 @@ class Game
         // Footer
         if ($this->footer) imagettftext($im, 10, 0, $x, $y, $black, $font, 'with  Energi team');
 
-        // Write it
-        imagepng($im, __DIR__ . "/../tmp/temp_$this->session.png",9);
-        
-        // Create gif frames
-        ob_start();
-        imagegif($im);
-        $frames[]=ob_get_contents();
-        $delays[]=100;
-        $loops = 1;
-        ob_end_clean();
+        // Write file
+        imagepng($im, __DIR__ . "/../tmp/temp_$this->session.png",0);
+
+        // Resize logo
+        if ($this->logo) $this->resizeLogo($width, $height);
+
+        // Gif frames
+        for($i = 0; $i <= 1; $i++) {
+            if($i == 1 && $this->logo) {
+                $logo = imagecreatefrompng($this->logoResizedPath);
+                ;
+                ob_start();
+                imagegif($logo);
+                $frames[]=ob_get_contents();
+                $delays[]=300;
+                $loops = 1;
+                ob_end_clean();
+                ob_start();
+                imagegif($im);
+                $frames[]=ob_get_contents();
+                $delays[]=300;
+                $loops = 1;
+                ob_end_clean();
+                break;
+            } else {
+                ob_start();
+                imagegif($im);
+                $frames[]=ob_get_contents();
+                $delays[]=300;
+                $loops = 0;
+                ob_end_clean();
+            }
+        }
 
         $this->frames = $frames;
         $this->delays = $delays;
         $this->loops = $loops;   
+    }
+
+    private function resizeLogo(int $newWidth, int $newHeight):void
+    {
+        $this->logoResizedPath = __DIR__ . "/../tmp/temp_logo_$this->session.png";
+
+        // Resize logo
+        $img = imagecreatefrompng($this->logoPath);
+        list($width, $height) = getimagesize($this->logoPath);
+        $newLogoWidth = ($height / $width) * $newHeight;
+        $tmp = imagecreatetruecolor($newLogoWidth, $newHeight);
+        imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newLogoWidth, $newHeight, $width, $height);
+        imagepng($tmp, $this->logoResizedPath);
+
+        // Create destination image.
+        $png = imagecreatetruecolor($newWidth, $newHeight);
+        imagealphablending($png, false);
+        imagesavealpha($png, true);
+
+        // Transparency
+        $color = imagecolorallocatealpha($png, 0, 0, 0, 127);
+        imagefill($png, 0, 0, $color);
+
+        // Load source image.
+        $logo = imagecreatefrompng($this->logoResizedPath);
+        imagealphablending($logo, false);
+        imagesavealpha($logo, true);
+        $sizex = imagesx($logo);
+        $sizey = imagesy($logo);
+
+        // Copy to destination and save to file.
+        imagecopyresampled( $png, $logo,
+        $newWidth/2-$newLogoWidth/2, 0,
+        0, 0,
+        $sizex, $sizey,
+        $sizex, $sizey);
+
+        // Save file
+        imagepng($png, $this->logoResizedPath);
     }
 
     private function calculateTextBox(int $font_size, int $font_angle, string $font_file, string $text) :array

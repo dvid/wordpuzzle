@@ -8,12 +8,13 @@ require 'vendor/autoload.php';
 header('Content-type: image/gif');
 header('Content-Disposition: filename="glyphs.gif"');
 
-$header = (!empty($_GET['header'] == 1)) ? true : false ;
-$footer = (!empty($_GET['footer'] == 1)) ? true : false ;
+$logo = ($_GET['logo'] == 1) ? true : false ;
+$header = ($_GET['header'] == 1) ? true : false ;
+$footer = ($_GET['footer'] == 1) ? true : false ;
 $fontSize = (!empty($_GET['fontsize'])) ? $_GET['fontsize'] : 45 ;
 $session = (!empty($_GET['session'])) ? $_GET['session'] : 'default' ;
 
-$game = new Game($_GET['words'], 0, $_GET['answers'], 'unlocked_' . $session, $header, $footer, $fontSize);
+$game = new Game($_GET['words'], 0, $_GET['answers'], 'unlocked_' . $session, $header, $footer, $fontSize, $logo);
 $gif = new AnimatedGif($game->getFrames(), $game->getDelays(), $game->getLoops());
 
 $gif->display();
