@@ -6,7 +6,7 @@ class Game
 {
     private $frames;
     private $delays;
-    private $loops; 
+    private $loops;
 
     private $sessionFileNameWords;
     private $sessionFileNameAnswers;
@@ -20,6 +20,7 @@ class Game
     private $logo;
     private $logoPath = __DIR__ . '/../assets/energi.png';
     private $logoResizedPath;
+    private $loop;
 
     public function __construct(
         ?string $words,
@@ -29,8 +30,10 @@ class Game
         bool $header = false,
         bool $footer = false,
         int $fontSize = 45,
-        bool $logo = false
+        bool $logo = false,
+        bool $loop = false
     ) {
+        $this->loop = $loop;
         $this->logo = $logo;
         $this->header = $header;
         $this->footer = $footer;
@@ -187,7 +190,7 @@ class Game
                 imagegif($im);
                 $frames[]=ob_get_contents();
                 $delays[]=300;
-                $loops = 1;
+                $loops = (int) $this->loop;
                 ob_end_clean();
                 break;
             } else {
