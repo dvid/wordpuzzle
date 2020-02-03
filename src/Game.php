@@ -17,6 +17,7 @@ class Game
     private $header;
     private $footer;
     private $fontSize;
+    private $fontColor;
     private $logo;
     private $logoPath = __DIR__ . '/../assets/energi.png';
     private $logoResizedPath;
@@ -31,7 +32,8 @@ class Game
         bool $footer = false,
         int $fontSize = 45,
         bool $logo = false,
-        bool $loop = false
+        bool $loop = false,
+        string $fontColor = 'green'
     ) {
         $this->loop = $loop;
         $this->logo = $logo;
@@ -39,6 +41,7 @@ class Game
         $this->footer = $footer;
         $this->session = $session;
         $this->fontSize = $fontSize;
+        $this->fontColor = $fontColor;
         $this->sessionFileNameWords =  __DIR__ . "/../tmp/words_$session.txt";
         $this->sessionFileNameAnswers =  __DIR__ . "/../tmp/answers_$session.txt";
         $this->answers = ($lock === false) ? $this->setAnswers($answers) : $this->getAnswers();
@@ -152,11 +155,27 @@ class Game
         $im = imagecreatetruecolor($width, $height);
         $black = imagecolorallocate($im, 0, 0, 0);
         $white = imagecolorallocate($im, 255, 255, 255);
-        $green = imagecolorallocate($im, 51, 102, 102);
         imagefilledrectangle($im, 0, 0, $width, $height, $white);
 
+        // Choose font color
+        switch ($this->fontColor) {
+            case 'blue':
+                $fontColor = imagecolorallocate($im, 51, 102, 153);
+                break;
+            case 'black':
+                $fontColor = $black;
+                break;
+            case 'red':
+                $fontColor = imagecolorallocate($im, 204, 51, 0);
+                break;
+            case 'green':
+            default:
+                $fontColor = imagecolorallocate($im, 51, 102, 102);
+                break;
+        }
+
         // Write words
-        imagettftext($im, $fontSize, 0, $xoffset, $yoffset, $green, $font, $words);
+        imagettftext($im, $fontSize, 0, $xoffset, $yoffset, $fontColor, $font, $words);
 
         // Set the coordinates
         $yPadding = ($this->header && $this->footer) ? 20 : 0;

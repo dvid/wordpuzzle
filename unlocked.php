@@ -13,9 +13,10 @@ $loop = ($_GET['loop'] == 1) ? true : false ;
 $header = ($_GET['header'] == 1) ? true : false ;
 $footer = ($_GET['footer'] == 1) ? true : false ;
 $fontSize = (!empty($_GET['fontsize'])) ? $_GET['fontsize'] : 45 ;
+$fonColor = (!empty($_GET['fontcolor'])) ? $_GET['fontcolor'] : 'green' ;
 $session = (!empty($_GET['session'])) ? $_GET['session'] : 'default' ;
 
-$game = new Game($_GET['words'], 0, $_GET['answers'], 'unlocked_' . $session, $header, $footer, $fontSize, $logo, $loop);
+$game = new Game($_GET['words'], 0, $_GET['answers'], 'unlocked_' . $session, $header, $footer, $fontSize, $logo, $loop, $fonColor);
 $gif = new AnimatedGif($game->getFrames(), $game->getDelays(), $game->getLoops());
 
 $gif->display();
